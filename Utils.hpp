@@ -1,6 +1,8 @@
 #include <CL/sycl.hpp>
 #include <cassert>
 #include <random>
+#include <sstream>
+#include <string>
 
 static void PrintInfo(cl::sycl::queue const &queue, std::ostream &os) {
   auto device = queue.get_device();
@@ -18,6 +20,42 @@ static std::vector<cl::sycl::cl_int> GetRandomVector(size_t size) {
   for (auto i = size_t{0}; i < size; ++i)
     vec[i] = rand(gen);
   return vec;
+}
+
+template <typename T, typename CPUFunction, typename GPUFunction>
+static void Check(std::vector<T> const &vec, CPUFunction &&CPU,
+                  GPUFunction &&GPU) {
+  auto size = vec.size();
+  auto antiDCE = 0;
+  auto gpuVec = vec;
+  auto cpuVec = vec;
+
+  auto gpu_time = Utility::Benchmark([&]() {
+    GPU(gpuVec);
+    antiDCE += gpuVec[size - 1];
+  });
+  auto cpu_time = Utility::Benchmark([&]() {
+    CPU(cpuVec);
+    antiDCE += cpuVec[size - 1];
+  });
+
+  for (auto i = size_t{0}; i < size; ++i) {
+    if (gpuVec[i] == cpuVec[i])
+      continue;
+    auto message = std::stringstream{};
+    message << "Results from CPU and GPU do not match at pos " << i
+            << std::endl;
+    message << "GPU value: " << gpuVec[i] << std::endl;
+    message << "CPU value : " << cpuVec[i] << std::endl;
+    throw std::runtime_error{message.str()};
+  }
+  std::cout << "Successfully computed " << size << " elements!" << std::endl;
+  std::cout << "GPU time: " << (gpu_time.count() / 1000) << " microseconds"
+            << std::endl;
+  std::cout << "CPU time: " << (cpu_time.count() / 1000) << " microseconds"
+            << std::endl;
+
+  std::cout << "Anti-DCE: " << antiDCE << std::endl;
 }
 
 // Copy-paste https://stackoverflow.com/a/14880868/8099151

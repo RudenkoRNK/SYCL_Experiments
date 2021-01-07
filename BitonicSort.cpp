@@ -48,31 +48,8 @@ int main(int argc, char *argv[]) {
   PrintInfo(queue, std::cout);
   auto antiDCE = 0;
   auto vec = GetRandomVector(size);
-  auto gpuVec = vec;
-  auto cpuVec = vec;
 
-  auto gpu_time = Utility::Benchmark([&]() {
-    BitonicSort(queue, gpuVec);
-    antiDCE += gpuVec[size - 1];
-  });
-  auto cpu_time = Utility::Benchmark([&]() {
-    std::sort(cpuVec.begin(), cpuVec.end());
-    antiDCE += cpuVec[size - 1];
-  });
-
-  for (auto i = size_t{0}; i < size; ++i) {
-    if (gpuVec[i] != cpuVec[i]) {
-      std::cout << "Failed to sort at pos " << i << std::endl;
-      std::cout << "Parallel: " << gpuVec[i] << ". Serial: " << cpuVec[i] << "."
-                << std::endl;
-      return 1;
-    }
-  }
-  std::cout << "Successfully sorted " << size << " elements!" << std::endl;
-  std::cout << "GPU time: " << (gpu_time.count() / 1000) << " microseconds"
-            << std::endl;
-  std::cout << "CPU time: " << (cpu_time.count() / 1000) << " microseconds"
-            << std::endl;
-
-  std::cout << "Anti-DCE: " << antiDCE << std::endl;
+  Check(
+      vec, [&](auto &vec) { BitonicSort(queue, vec); },
+      [&](auto &vec) { std::sort(vec.begin(), vec.end()); });
 }
