@@ -1,8 +1,12 @@
+#pragma once
+
 #include <CL/sycl.hpp>
+
 #include <cassert>
 #include <random>
 #include <sstream>
 #include <string>
+#include <string_view>
 
 static void PrintInfo(cl::sycl::queue const &queue, std::ostream &os) {
   auto device = queue.get_device();
@@ -36,40 +40,50 @@ static std::vector<cl::sycl::cl_int> GetRandomVector(size_t size) {
   return vec;
 }
 
-template <typename T, typename CPUFunction, typename GPUFunction>
-static void Check(std::vector<T> const &vec, CPUFunction &&CPU,
-                  GPUFunction &&GPU) {
-  auto size = vec.size();
-  auto antiDCE = 0;
-  auto gpuVec = vec;
-  auto cpuVec = vec;
+template <typename T, typename Competitor>
+static void _RunCompetitor(std::vector<T> &vec, std::string_view description,
+                           Competitor &&competitor) {
+  auto time = Utility::Benchmark([&]() { competitor(vec); });
+  std::cout << description << " time: " << (time.count() / 1000)
+            << " microseconds" << std::endl;
+}
 
-  auto gpu_time = Utility::Benchmark([&]() {
-    GPU(gpuVec);
-    antiDCE += gpuVec[size - 1];
-  });
-  auto cpu_time = Utility::Benchmark([&]() {
-    CPU(cpuVec);
-    antiDCE += cpuVec[size - 1];
-  });
+template <typename T, typename Competitor, typename... Competitors>
+static void
+_Check(std::vector<T> const &previousResult, std::vector<T> const &vec,
+       std::string_view previousDescription, std::string_view description,
+       Competitor &&competitor, Competitors &&... competitors) {
+  auto size = vec.size();
+  auto result = vec;
+
+  _RunCompetitor(result, description, competitor);
 
   for (auto i = size_t{0}; i < size; ++i) {
-    if (gpuVec[i] == cpuVec[i])
+    if (result[i] == previousResult[i])
       continue;
     auto message = std::stringstream{};
-    message << "Results from CPU and GPU do not match at pos " << i
+    message << "Results from " << previousDescription;
+    message << "and " << description;
+    message << "do not match at pos " << i << std::endl;
+    message << previousDescription << " value: " << previousResult[i]
             << std::endl;
-    message << "GPU value: " << gpuVec[i] << std::endl;
-    message << "CPU value : " << cpuVec[i] << std::endl;
+    message << description << " value: " << result[i] << std::endl;
     throw std::runtime_error{message.str()};
   }
-  std::cout << "Successfully computed " << size << " elements!" << std::endl;
-  std::cout << "GPU time: " << (gpu_time.count() / 1000) << " microseconds"
-            << std::endl;
-  std::cout << "CPU time: " << (cpu_time.count() / 1000) << " microseconds"
-            << std::endl;
 
-  std::cout << "Anti-DCE: " << antiDCE << std::endl;
+  if constexpr (sizeof...(competitors) > 0)
+    _Check(previousResult, vec, description,
+           std::forward<Competitors>(competitors)...);
+}
+
+template <typename T, typename Competitor, typename... Competitors>
+static void Check(std::vector<T> const &vec, std::string_view description,
+                  Competitor &&competitor, Competitors &&... competitors) {
+  static_assert(sizeof...(competitors) % 2 == 0);
+  auto result = vec;
+  _RunCompetitor(result, description, competitor);
+  if constexpr (sizeof...(competitors) > 0)
+    _Check(result, vec, description, std::forward<Competitors>(competitors)...);
 }
 
 // Copy-paste https://stackoverflow.com/a/14880868/8099151

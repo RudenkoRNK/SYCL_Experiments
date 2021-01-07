@@ -1,14 +1,12 @@
+#pragma once
+
 #include <CL/sycl.hpp>
 #include <CL/sycl/INTEL/esimd.hpp>
-#include <Utility/Misc.hpp>
-#include <cassert>
-#include <random>
-#include <string>
 
 #include "Utils.hpp"
 
 template <typename T>
-void BitonicSort(cl::sycl::queue &queue, std::vector<T> &vec) {
+static void BitonicSortNaive(cl::sycl::queue &queue, std::vector<T> &vec) {
   auto size = vec.size();
   auto nLargeSteps = static_cast<cl::sycl::cl_int>(log2i(size));
   auto buf = cl::sycl::buffer{vec};
@@ -33,16 +31,4 @@ void BitonicSort(cl::sycl::queue &queue, std::vector<T> &vec) {
             std::swap(access[id0], access[id1]);
         });
       });
-}
-
-int main(int argc, char *argv[]) {
-  auto pow = GetIntArgument(argc, argv, 12);
-  auto size = static_cast<size_t>(1 << pow);
-
-  auto queue = GetDefaultQueue();
-  auto vec = GetRandomVector(size);
-
-  Check(
-      vec, [&](auto &v) { std::sort(v.begin(), v.end()); },
-      [&](auto &v) { BitonicSort(queue, v); });
 }
