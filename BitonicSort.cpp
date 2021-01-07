@@ -3,6 +3,7 @@
 #include <Utility/Misc.hpp>
 #include <cassert>
 #include <random>
+#include <string>
 
 void PrintInfo(cl::sycl::queue const &queue, std::ostream &os) {
   auto device = queue.get_device();
@@ -64,8 +65,13 @@ void BitonicSort(cl::sycl::queue &queue, std::vector<T> &vec) {
       });
 }
 
-int main() {
-  auto size = size_t{16777216};
+int main(int argc, char *argv[]) {
+  auto size = size_t{4096};
+  if (argc > 1) {
+    auto arg = std::string(argv[1]);
+    auto pow = std::stoi(arg);
+    size = 1 << pow;
+  }
 
   auto GPUSelector = cl::sycl::gpu_selector{};
   auto queue = cl::sycl::queue{GPUSelector};
