@@ -71,19 +71,19 @@ int main() {
   auto queue = cl::sycl::queue{GPUSelector};
   PrintInfo(queue, std::cout);
   auto antiDCE = 0;
+  auto vec = GetRandomVector(size);
 
   auto gpu_time = Utility::Benchmark([&]() {
-    auto vec = GetRandomVector(size);
-    BitonicSort(queue, vec);
-    antiDCE += vec[size - 1];
+    auto vec_ = vec;
+    BitonicSort(queue, vec_);
+    antiDCE += vec_[size - 1];
   });
   auto cpu_time = Utility::Benchmark([&]() {
-    auto vec = GetRandomVector(size);
-    std::sort(vec.begin(), vec.end());
-    antiDCE += vec[size - 1];
+    auto vec_ = vec;
+    std::sort(vec_.begin(), vec_.end());
+    antiDCE += vec_[size - 1];
   });
 
-  auto vec = GetRandomVector(size);
   auto sortedVec = vec;
   BitonicSort(queue, vec);
   std::sort(sortedVec.begin(), sortedVec.end());
@@ -95,7 +95,7 @@ int main() {
       return 1;
     }
   }
-  std::cout << "Sorted successfully!" << std::endl;
+  std::cout << "Successfully sorted " << size << " elements!" << std::endl;
   std::cout << "GPU time: " << (gpu_time.count() / 1000) << " microseconds"
             << std::endl;
   std::cout << "CPU time: " << (cpu_time.count() / 1000) << " microseconds"
