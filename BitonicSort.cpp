@@ -36,20 +36,13 @@ void BitonicSort(cl::sycl::queue &queue, std::vector<T> &vec) {
 }
 
 int main(int argc, char *argv[]) {
-  auto size = size_t{4096};
-  if (argc > 1) {
-    auto arg = std::string(argv[1]);
-    auto pow = std::stoi(arg);
-    size = 1 << pow;
-  }
+  auto pow = GetIntArgument(argc, argv, 12);
+  auto size = static_cast<size_t>(1 << pow);
 
-  auto GPUSelector = cl::sycl::gpu_selector{};
-  auto queue = cl::sycl::queue{GPUSelector};
-  PrintInfo(queue, std::cout);
-  auto antiDCE = 0;
+  auto queue = GetDefaultQueue();
   auto vec = GetRandomVector(size);
 
   Check(
-      vec, [&](auto &vec) { BitonicSort(queue, vec); },
-      [&](auto &vec) { std::sort(vec.begin(), vec.end()); });
+      vec, [&](auto &v) { std::sort(v.begin(), v.end()); },
+      [&](auto &v) { BitonicSort(queue, v); });
 }

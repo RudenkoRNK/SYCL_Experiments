@@ -12,6 +12,20 @@ static void PrintInfo(cl::sycl::queue const &queue, std::ostream &os) {
   os << device.get_info<cl::sycl::info::device::opencl_c_version>() << "\n";
 }
 
+static int GetIntArgument(int argc, char *argv[], int defaultValue = 0) {
+  if (argc <= 1)
+    return defaultValue;
+  auto arg = std::string(argv[1]);
+  return std::stoi(arg);
+}
+
+static cl::sycl::queue GetDefaultQueue() {
+  auto GPUSelector = cl::sycl::gpu_selector{};
+  auto queue = cl::sycl::queue{GPUSelector};
+  PrintInfo(queue, std::cout);
+  return queue;
+}
+
 static std::vector<cl::sycl::cl_int> GetRandomVector(size_t size) {
   auto rd = std::random_device{};
   auto gen = std::mt19937{static_cast<unsigned>(rd())};
