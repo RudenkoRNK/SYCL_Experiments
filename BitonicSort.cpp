@@ -1,11 +1,12 @@
 #include <CL/sycl.hpp>
 #include <CL/sycl/INTEL/esimd.hpp>
+#include <Utility/Misc.hpp>
 #include <cassert>
 #include <random>
 
-//using namespace sycl::INTEL::gpu;
-//using namespace cl::sycl;
-//void kernel(accessor<int, 1, access::mode::read_write,
+// using namespace sycl::INTEL::gpu;
+// using namespace cl::sycl;
+// void kernel(accessor<int, 1, access::mode::read_write,
 //                     access::target::global_buffer> &buf)
 //    __attribute__((sycl_device)) {
 //  simd<uint32_t, 32> offsets(0, 1);
@@ -75,9 +76,15 @@ int main() {
   auto vec = GetRandomVector(size);
   auto sortedVec = vec;
 
-  std::sort(sortedVec.begin(), sortedVec.end());
-  BitonicSort(vec);
+  auto gpu_time = Utility::Benchmark(
+      [&]() {
+        auto vec = GetRandomVector(size);
+        BitonicSort(vec);
+      },
+      10);
 
+  BitonicSort(vec);
+  std::sort(sortedVec.begin(), sortedVec.end());
   for (auto i = size_t{0}; i < size; ++i) {
     if (vec[i] != sortedVec[i]) {
       std::cout << "Failed to sort at pos " << i << std::endl;
@@ -87,4 +94,5 @@ int main() {
     }
   }
   std::cout << "Sorted successfully!" << std::endl;
+  std::cout << "GPU time: " << gpu_time.count() << " nanoseconds" << std::endl;
 }
