@@ -18,8 +18,8 @@ static void BitonicSortNaive(cl::sycl::queue &queue, std::vector<T> &vec) {
         auto access =
             buf.template get_access<cl::sycl::access::mode::read_write>(h);
         // Executing kernel
-        h.parallel_for<class Bitonic>(range1d, [access, i,
-                                                j](cl::sycl::id<1> id_) {
+        h.parallel_for<class BitonicNaive>(range1d, [access, i,
+                                                     j](cl::sycl::id<1> id_) {
           auto id = id_[0];
           auto boxSize = 2 << (i - j);
           auto isSortPhase = static_cast<bool>(j);

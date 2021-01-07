@@ -1,10 +1,4 @@
-#include <CL/sycl.hpp>
-#include <CL/sycl/INTEL/esimd.hpp>
-#include <Utility/Misc.hpp>
-#include <cassert>
-#include <random>
-#include <string>
-
+#include "BitonicSortLocal.hpp"
 #include "BitonicSortNaive.hpp"
 #include "Utils.hpp"
 
@@ -16,6 +10,8 @@ int main(int argc, char *argv[]) {
   auto vec = GetRandomVector(size);
 
   Check(
-      vec, "CPU", [&](auto &v) { std::sort(v.begin(), v.end()); }, "GPU",
-      [&](auto &v) { BitonicSortNaive(queue, v); });
+      vec, "Warming up GPU", [&](auto &v) { BitonicSortNaive(queue, v); },
+      "CPU", [&](auto &v) { std::sort(v.begin(), v.end()); }, "GPU naive",
+      [&](auto &v) { BitonicSortNaive(queue, v); }, "GPU with local memory",
+      [&](auto &v) { BitonicSortLocal(queue, v); });
 }

@@ -1,12 +1,14 @@
 #pragma once
 
-#include <CL/sycl.hpp>
-
 #include <cassert>
 #include <random>
 #include <sstream>
 #include <string>
 #include <string_view>
+
+#include <CL/sycl.hpp>
+
+#include <Utility/Misc.hpp>
 
 static void PrintInfo(cl::sycl::queue const &queue, std::ostream &os) {
   auto device = queue.get_device();
@@ -16,10 +18,12 @@ static void PrintInfo(cl::sycl::queue const &queue, std::ostream &os) {
   os << device.get_info<cl::sycl::info::device::opencl_c_version>() << "\n";
 }
 
-static int GetIntArgument(int argc, char *argv[], int defaultValue = 0) {
-  if (argc <= 1)
+static int GetIntArgument(int argc, char *argv[], int defaultValue = 0,
+                          size_t nArg = 0) {
+  auto index = nArg + 1;
+  if (argc <= index)
     return defaultValue;
-  auto arg = std::string(argv[1]);
+  auto arg = std::string(argv[index]);
   return std::stoi(arg);
 }
 
@@ -80,10 +84,15 @@ template <typename T, typename Competitor, typename... Competitors>
 static void Check(std::vector<T> const &vec, std::string_view description,
                   Competitor &&competitor, Competitors &&... competitors) {
   static_assert(sizeof...(competitors) % 2 == 0);
+  std::cout << "Running benchmark on vector of " << vec.size() << " elements..."
+            << std::endl;
+
   auto result = vec;
   _RunCompetitor(result, description, competitor);
   if constexpr (sizeof...(competitors) > 0)
     _Check(result, vec, description, std::forward<Competitors>(competitors)...);
+
+  std::cout << std::endl;
 }
 
 // Copy-paste https://stackoverflow.com/a/14880868/8099151

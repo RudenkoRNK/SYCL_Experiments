@@ -6,7 +6,7 @@
 #include "Utils.hpp"
 
 template <typename T>
-static void BitonicSortNaive(cl::sycl::queue &queue, std::vector<T> &vec) {
+static void BitonicSortLocal(cl::sycl::queue &queue, std::vector<T> &vec) {
   auto size = vec.size();
   auto nLargeSteps = static_cast<cl::sycl::cl_int>(log2i(size));
   auto buf = cl::sycl::buffer{vec};
@@ -18,8 +18,8 @@ static void BitonicSortNaive(cl::sycl::queue &queue, std::vector<T> &vec) {
         auto access =
             buf.template get_access<cl::sycl::access::mode::read_write>(h);
         // Executing kernel
-        h.parallel_for<class Bitonic>(range1d, [access, i,
-                                                j](cl::sycl::id<1> id_) {
+        h.parallel_for<class BitonicLocal>(range1d, [access, i,
+                                                     j](cl::sycl::id<1> id_) {
           auto id = id_[0];
           auto boxSize = 2 << (i - j);
           auto isSortPhase = static_cast<bool>(j);
