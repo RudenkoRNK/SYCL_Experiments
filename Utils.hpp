@@ -53,13 +53,16 @@ static void PrintInfo(cl::sycl::queue const &queue, std::ostream &os) {
      << std::endl;
   os << "Compute units: " << device.get_info<info::device::max_compute_units>()
      << std::endl;
-  os << "Work group size: "
-     << device.get_info<info::device::max_work_group_size>() << std::endl;
+  auto wgSize = device.get_info<info::device::max_work_group_size>();
+  auto localMem = device.get_info<info::device::local_mem_size>();
+  os << "Work group size: " << wgSize << std::endl;
+  os << "Local memory size: " << localMem / 1024 << "KiB"
+     << " (" << localMem / wgSize << "B per work item)" << std::endl;
   os << "Max clock frequency: "
-     << device.get_info<info::device::max_clock_frequency>() << " MHz\n";
+     << device.get_info<info::device::max_clock_frequency>() << "MHz\n";
   os << "Total memory : "
      << (device.get_info<info::device::global_mem_size>() / (1024 * 1024))
-     << " MiB" << std::endl;
+     << "MiB" << std::endl;
   os << "Addressing model: " << device.get_info<info::device::address_bits>()
      << " bit" << std::endl;
   os << "OpenCL profile: " << device.get_info<info::device::profile>()
