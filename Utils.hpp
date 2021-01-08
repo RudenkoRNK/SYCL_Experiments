@@ -115,9 +115,10 @@ _Check(std::vector<T> const &previousResult, std::vector<T> const &vec,
     if (result[i] == previousResult[i])
       continue;
     auto message = std::stringstream{};
-    message << "Results from " << previousDescription;
-    message << "and " << description;
-    message << "do not match at pos " << i << std::endl;
+    message << std::endl;
+    message << "Results from \"" << previousDescription << "\"";
+    message << " and \"" << description << "\"";
+    message << " do not match at pos " << i << std::endl;
     message << previousDescription << " value: " << previousResult[i]
             << std::endl;
     message << description << " value: " << result[i] << std::endl;
