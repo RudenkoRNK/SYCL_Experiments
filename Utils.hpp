@@ -162,3 +162,5 @@ static unsigned int log2i(unsigned int x) {
   return log2Val;
 #endif
 }
+
+static unsigned int ClosestPowerOf2(unsigned int x) { return 1 << log2i(x); }
