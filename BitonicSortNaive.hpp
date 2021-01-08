@@ -24,11 +24,22 @@ static void BitonicSortNaive(cl::sycl::queue &queue, std::vector<T> &vec) {
           auto boxSize = 2 << (i - j);
           auto isSortPhase = static_cast<bool>(j);
           auto id0 = ((id / (boxSize / 2)) * boxSize) + (id % (boxSize / 2));
+#ifdef ALTERNATIVE
+          // See
+          // https://en.wikipedia.org/wiki/Bitonic_sorter#Alternative_representation
           auto id1 =
               (id0 + boxSize / 2) +
               (isSortPhase - 1) * ((2 * (id0 % boxSize)) - boxSize / 2 + 1);
           if (access[id0] > access[id1])
             std::swap(access[id0], access[id1]);
+#else  // faster
+          auto id1 = id0 + boxSize / 2;
+          auto bigBoxSize = 2 << i;
+          if (((id0 / bigBoxSize) % 2) == (access[id0] < access[id1]))
+            std::swap(access[id0], access[id1]);
+#endif // ALTERNATIVE
         });
       });
+  queue.wait();
+  buf.template get_access<cl::sycl::access::mode::read_write>();
 }
