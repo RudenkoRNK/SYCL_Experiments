@@ -69,10 +69,12 @@ static void PrintInfo(cl::sycl::queue const &queue, std::ostream &os) {
      << std::endl;
   os << "OpenCL version: " << device.get_info<info::device::opencl_c_version>()
      << std::endl;
+#if 0
   auto extensions = device.get_info<info::device::extensions>();
   os << "Supported extensions: " << std::endl;
   for (auto const &ext : extensions)
     os << "  * " << ext << std::endl;
+#endif
 
   os << std::endl;
 }
