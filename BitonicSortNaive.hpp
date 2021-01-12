@@ -1,7 +1,6 @@
 #pragma once
 
 #include <CL/sycl.hpp>
-#include <CL/sycl/INTEL/esimd.hpp>
 
 #include "Utils.hpp"
 
