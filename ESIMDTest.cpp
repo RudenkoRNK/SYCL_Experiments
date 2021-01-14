@@ -20,7 +20,7 @@ void FillESIMD(cl::sycl::queue &queue, std::vector<T> &vec) {
           // Fill vector at indices [id*SIMDSize, (id+1)*SIMDSize)
           // data == {id, id+1, id+2, ..., id+SIMDSize-1}
           auto data = simd<T, SIMDSize>(id, 1);
-          auto offsets = simd<uint32_t, SIMDSize>(id, 1) * TSize;
+          auto offsets = simd<uint32_t, SIMDSize>(id, 1);
           scatter<T, SIMDSize>(access, data, offsets);
         });
   });
