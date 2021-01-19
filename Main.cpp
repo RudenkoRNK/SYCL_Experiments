@@ -1,6 +1,10 @@
+#ifdef ESIMDVER
+#include "BitonicSortESIMD.hpp"
+#else
 #include "BitonicSortHier.hpp"
 #include "BitonicSortLocal.hpp"
 #include "BitonicSortNaive.hpp"
+#endif
 #include "Utils.hpp"
 
 int main(int argc, char *argv[]) {
@@ -16,8 +20,15 @@ int main(int argc, char *argv[]) {
   WarmUp(queue);
 
   Check(
-      vec, "CPU", [&](auto &v) { std::sort(v.begin(), v.end()); }, "GPU naive",
-      [&](auto &v) { BitonicSortNaive(queue, v); }, "GPU with local memory",
-      [&](auto &v) { BitonicSortLocal(queue, v); }, "GPU with PFWI",
-      [&](auto &v) { BitonicSortHier(queue, v); });
+      vec, "CPU", [&](auto &v) { std::sort(v.begin(), v.end()); }
+#ifdef ESIMDVER
+      ,
+      "GPU with ESIMD", [&](auto &v) { BitonicSortESIMD(queue, v); }
+#else
+      ,
+      "GPU naive", [&](auto &v) { BitonicSortNaive(queue, v); },
+      "GPU with local memory", [&](auto &v) { BitonicSortLocal(queue, v); },
+      "GPU with PFWI", [&](auto &v) { BitonicSortHier(queue, v); }
+#endif
+  );
 }
