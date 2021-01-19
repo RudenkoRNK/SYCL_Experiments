@@ -6,8 +6,8 @@
 
 template <typename T>
 static void BitonicSortHier(cl::sycl::queue &queue, std::vector<T> &vec) {
-  using namespce cl::sycl;
-  auto constexpr SIMDSize = unsigned{32};
+  using namespace cl::sycl;
+  auto SIMDSize = unsigned{32};
   if (vec.size() <= SIMDSize)
     SIMDSize = vec.size() / 2;
 
