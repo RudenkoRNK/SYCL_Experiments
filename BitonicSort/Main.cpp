@@ -5,7 +5,7 @@
 #include "BitonicSortLocal.hpp"
 #include "BitonicSortNaive.hpp"
 #endif
-#include "Utils.hpp"
+#include "../Utils.hpp"
 
 int main(int argc, char *argv[]) {
   auto pow = GetIntArgument(argc, argv, 12);

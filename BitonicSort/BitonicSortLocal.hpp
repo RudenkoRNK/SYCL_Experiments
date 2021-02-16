@@ -4,7 +4,7 @@
 
 #include <algorithm>
 
-#include "Utils.hpp"
+#include "../Utils.hpp"
 
 template <typename T>
 static void BitonicSortLocal(cl::sycl::queue &queue, std::vector<T> &vec) {
