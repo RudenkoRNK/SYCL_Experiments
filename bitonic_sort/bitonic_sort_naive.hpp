@@ -2,7 +2,7 @@
 
 #include <CL/sycl.hpp>
 
-#include "../Utils.hpp"
+#include "../utils.hpp"
 
 template <typename T>
 static void BitonicSortNaive(cl::sycl::queue &queue, std::vector<T> &vec) {

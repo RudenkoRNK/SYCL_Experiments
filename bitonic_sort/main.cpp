@@ -1,11 +1,11 @@
 #ifdef ESIMDVER
-#include "BitonicSortESIMD.hpp"
+#include "bitonic_sort_esimd.hpp"
 #else
-#include "BitonicSortHier.hpp"
-#include "BitonicSortLocal.hpp"
-#include "BitonicSortNaive.hpp"
+#include "bitonic_sort_hier.hpp"
+#include "bitonic_sort_local.hpp"
+#include "bitonic_sort_naive.hpp"
 #endif
-#include "../Utils.hpp"
+#include "../utils.hpp"
 
 int main(int argc, char *argv[]) {
   auto pow = GetIntArgument(argc, argv, 12);

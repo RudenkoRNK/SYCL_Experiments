@@ -5,7 +5,7 @@
 
 #include <algorithm>
 
-#include "../Utils.hpp"
+#include "../utils.hpp"
 
 template <typename T>
 static void BitonicSortESIMD(cl::sycl::queue &queue, std::vector<T> &vec) {

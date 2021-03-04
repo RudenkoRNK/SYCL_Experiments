@@ -1,3 +1,4 @@
 [submodule "Utility"]
-	path = Utility
-	url = https://github.com/RudenkoRNK/Utility
+	path = utility
+	url = https://github.com/RudenkoRNK/utility
+	branch = c++17

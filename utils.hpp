@@ -8,7 +8,7 @@
 
 #include <CL/sycl.hpp>
 
-#include <Utility/Misc.hpp>
+#include <utility/misc.hpp>
 
 static int GetIntArgument(int argc, char *argv[], int defaultValue = 0,
                           size_t nArg = 0) {
